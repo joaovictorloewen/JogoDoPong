@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+
+        canvas {
+            border: 2px solid white;
+        }
+
+        .score {
+            position: absolute;
+            top: 20px;
+            color: white;
+            font-size: 30px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="pong"></canvas>
+    <div class="score">
+        <span id="playerScore">0</span> - <span id="aiScore">0</span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('pong');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 800;
+        canvas.height = 600;
+
+        const paddleWidth = 15, paddleHeight = 100;
+        const ballSize = 20;
+
+        let ballVelocityX = 4;
+        let ballVelocityY = 4;
+        let playerVelocity = 0;
+        let aiVelocity = 4;
+
+        let ballX = canvas.width / 2 - ballSize / 2;
+        let ballY = canvas.height / 2 - ballSize / 2;
+        let playerPaddleY = canvas.height / 2 - paddleHeight / 2;
+        let aiPaddleY = canvas.height / 2 - paddleHeight / 2;
+
+        let playerScore = 0;
+        let aiScore = 0;
+        let scoreTimeout;
+
+        function drawBall() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(ballX, ballY, ballSize, ballSize);
+        }
+
+        function drawPaddles() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(10, playerPaddleY, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth - 10, aiPaddleY, paddleWidth, paddleHeight);
+        }
+
+        function moveBall() {
+            ballX += ballVelocityX;
+            ballY += ballVelocityY;
+
+            if (ballY <= 0 || ballY + ballSize >= canvas.height) {
+                ballVelocityY = -ballVelocityY;
+            }
+
+            if (ballX <= paddleWidth && ballY >= playerPaddleY && ballY <= playerPaddleY + paddleHeight) {
+                ballVelocityX = -ballVelocityX;
+            }
+
+            if (ballX >= canvas.width - paddleWidth - ballSize && ballY >= aiPaddleY && ballY <= aiPaddleY + paddleHeight) {
+                ballVelocityX = -ballVelocityX;
+            }
+
+            if (ballX <= 0) {
+                aiScore++;
+                updateScore();
+                resetBall();
+            } else if (ballX >= canvas.width - ballSize) {
+                playerScore++;
+                updateScore();
+                resetBall();
+            }
+        }
+
+        function moveAI() {
+            if (aiPaddleY + paddleHeight / 2 < ballY + ballSize / 2) {
+                aiPaddleY += aiVelocity;
+            } else {
+                aiPaddleY -= aiVelocity;
+            }
+        }
+
+        function movePlayer() {
+            playerPaddleY += playerVelocity;
+
+            if (playerPaddleY < 0) playerPaddleY = 0;
+            if (playerPaddleY + paddleHeight > canvas.height) playerPaddleY = canvas.height - paddleHeight;
+        }
+
+        function resetBall() {
+            ballX = canvas.width / 2 - ballSize / 2;
+            ballY = canvas.height / 2 - ballSize / 2;
+            ballVelocityX = -ballVelocityX;
+            showPointEffect();
+        }
+
+        function showPointEffect() {
+            ctx.fillStyle = 'yellow';
+            ctx.font = '30px Arial';
+            ctx.fillText('Point!', canvas.width / 2 - 50, canvas.height / 2);
+            setTimeout(() => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }, 500);
+        }
+
+        function updateScore() {
+            document.getElementById('playerScore').textContent = playerScore;
+            document.getElementById('aiScore').textContent = aiScore;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawBall();
+            drawPaddles();
+
+            moveBall();
+            moveAI();
+            movePlayer();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') {
+                playerVelocity = -6;
+            } else if (e.key === 'ArrowDown') {
+                playerVelocity = 6;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                playerVelocity = 0;
+            }
+        });
+
+        function gameLoop() {
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
