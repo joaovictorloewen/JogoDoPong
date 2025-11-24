@@ -1,4 +1,4 @@
-🕹️ Pong Game — HTML, CSS & JavaScript
+# 🕹️ Pong Game — HTML, CSS & JavaScript
 
 Este é um projeto criado por diversão, inspirado no clássico jogo Pong.
 O objetivo foi praticar lógica de programação, manipulação do DOM e animações em tempo real utilizando apenas HTML, CSS e JavaScript puro (Vanilla JS).
